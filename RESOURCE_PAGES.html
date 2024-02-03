@@ -1,0 +1,521 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    <div class="menu">
+        <a href="" class="current-page">RESOURCE PAGES</a>
+        <a href="./SKYSCRAPER.html" class="menu-item">SKYSCRAPER</a>
+        <a href="" class="menu-item" onclick="showAlert()">BUZZ-REMOVE-DUP</a>
+        <script>
+            function showAlert() {
+                alert("COMING SOON");
+            }
+        </script>
+    </div>
+
+
+    <style>
+        body {
+            transition: background-color 0.5s ease;
+            background-color: #f0f8ff; /* Light Blue Background */
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        form {
+            background-color: #eee;
+            padding: 20px;
+            box-shadow: 0px 7px 5px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 1200px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 5px 9px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            border: 2px solid #96d3dc;
+            border-radius: 5px;
+            resize: none;
+            transition: height 0.5s ease;
+            overflow: hidden;
+            height: 40px;
+            line-height: 1.5;
+            overflow-wrap: break-word; /* Allow long words to break and wrap */
+           /* white-space: nowrap; /* Prevent text from wrapping onto the next line */
+        }
+        
+        textarea:hover {
+            overflow-y: scroll; /* Enable vertical scrollbar on hover */
+           // height: 250px; /* Set height on hover */
+        }
+
+        #TechKeywords,
+        #mainlist1 {
+            width: calc(50% - 10px);
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        
+        @media screen and (max-width: 600px) {
+            #TechKeywords,
+            #mainlist1 {
+                width: 100%;
+                display: block;
+                margin-right: 0;
+            }
+        }
+        
+
+        input[type="button"] {
+            background: #52b3c1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 5px;
+        } 
+        
+        input[type="button"]:hover {
+            background: #2d676d; /* Change the background color on hover */
+        }
+
+
+      button {
+          background: #4CAF50;
+          color: white;
+          border: none;
+          padding: 10px;
+          cursor: pointer;
+      }
+
+      hr {
+        margin: 20px 0;
+        border: none;
+        border-top: 1px solid #d9d9d9;
+      }
+
+      .output-area {
+          background-color: #fff; /* White background */
+          padding: 20px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Drop shadow */
+          border-radius: 10px; /* Rounded corners */
+          margin: 20px auto;
+          overflow-wrap: break-word;
+          white-space: nowrap;
+          overflow: hidden;
+          max-width: 1200px;
+      }
+
+      #output-list {
+          list-style-type: none;
+          padding: 0;
+      }
+
+      #output-list li {
+          margin-bottom: 10px;
+          font-size: 16px;
+      }
+
+      a {
+          color: #0066cc; /* Blue link color */
+          text-decoration: none;
+      }
+
+      a:hover {
+          text-decoration: none;
+      }
+
+      .menu {
+        display: flex;
+        justify-content: center;
+        background-color: #f0f8ff; /* Light Blue Background */
+        padding: 2px;
+        margin-bottom: -20px;
+    }
+
+    .menu-item {
+        margin: 0 5px;
+        cursor: pointer;
+        padding: 12px;
+        box-shadow: 0px -4px 4px 2px rgba(0, 0, 0, 0.1);
+        margin-bottom: -4px;
+        border-radius: 3px;
+        background-color: #d9d9d9;
+        -webkit-text-stroke: 1px #19636d22;
+        color: rgb(86 86 86);
+        text-decoration: none;
+    }
+    .menu-item:hover {
+        background-color: #f0f0f0; /* Menu item background color on hover */
+        text-decoration: none;
+    }
+
+    .current-page {
+        margin: 0 5px;
+        cursor: default;
+        padding: 12px;
+        box-shadow: 0px -4px 4px 2px rgba(0, 0, 0, 0.1);
+        margin-bottom: -4px;
+        border-radius: 3px;
+        background-color: #eeeeee;
+        -webkit-text-stroke: 1px #defbff22;
+        color: rgb(185 185 185);
+        text-decoration: none;
+    }
+
+    </style>
+    <script>
+        function ClearData() {
+            document.myform.mainlist1.value = "";
+            document.myform.outputbox.value = "";
+            document.getElementById("outputbox").style.height = "40px"; /* Set initial height when clearing data */
+        }
+
+        function FilterTech() {
+          var mainlist = document.myform.mainlist1.value;
+          var TechWords = document.myform.TechKeywords.value;
+  
+          mainlist = mainlist.replace(/\r/gi, "\n")
+              .replace(/\n+/gi, "\n")
+              .replace(/"/g, "")
+              .replace(/â€º/g, "/");
+  
+          var listvalues = mainlist.split("\n");
+          var newlist = [];
+  
+          var TargetKWs = TechWords.split("\n");
+  
+          for (var i = 0; i < listvalues.length; i++) {
+              var matchFound = false;
+              for (var j = 0; j < TargetKWs.length; j++) {
+                  if (listvalues[i].includes(TargetKWs[j])) {
+                      matchFound = true;
+                      break;
+                  }
+              }
+              if (matchFound) {
+                  newlist.push(listvalues[i]);
+              }
+          }
+  
+          // Remove duplicates from newlist based on their domain
+          newlist = removeDuplicatesByDomain(newlist);
+  
+          // Adjust height on button click
+          document.getElementById("outputbox").style.height = "250px";
+  
+          // Display the filtered URLs in the outputbox
+          document.myform.outputbox.value = newlist.join("\n");
+          alert(newlist.length + ' unique matches found!');
+      }
+  
+      function removeDuplicatesByDomain(urls) {
+          var uniqueList = [];
+          var domainSet = new Set();
+  
+          for (var i = 0; i < urls.length; i++) {
+              var url = urls[i].trim();
+              var domain = getDomainFromUrl(url);
+  
+              if (!domainSet.has(domain)) {
+                  uniqueList.push(url);
+                  domainSet.add(domain);
+              }
+          }
+  
+          return uniqueList;
+      }
+  
+      function getDomainFromUrl(url) {
+          // Extract the domain from a given URL
+          var domainRegex = /^(?:https?:\/\/)?(?:www\.)?([^\/\n]+)/;
+          var matches = url.match(domainRegex);
+          return matches && matches.length > 1 ? matches[1] : "";
+      }
+
+      function FilterURLs() {
+        var count = 0;
+        var mainlist = document.myform.outputbox.value;
+        var listvalues = mainlist.split("\n");
+        var newlist = [];
+        var unwantedURLs = [".info", ".biz", ".in", ".ch", ".ru", ".hk", ".rs", ".fr", ".jp", ".mx", ".de", ".nl", ".ie", ".fi", ".tv", ".fm", ".app", ".directory", "betting", "bingo", "casino", "LGBTQ", "poker", "porn", "SEO", "sponsored", "tumblr", "twitter.com", "blogspot", "wordpress", ".pdf", "squarespace", "weebly", ".doc", ".docx", ".info", ".biz", "news", "magazines", "journals", "law", "forum", "directory", "SEO", "http://", "txt", ".xls", ".xlsx", ".pdf", "amazonaws", "azurewebsites", "cloudfront", "herokuapp", "squarespace", "typepad", "firebaseapp", "blogspot", "wixsite", "cloudapp", "cloudaccess", "substack", "pinterest", "nitter", "wix", "blogger", "blogging", "qowap", "fitnell", "issuu", "scribd", "zendesk", "bloomberg", "slideshare", "github", "quora", "adobe", "apple", "spotify", "amazon", "msn", "bye.fyi", "google", "yahoo", "facebook", ".pics", ".online", ".best","blogspot", "wordpress", ".about", "googleusercontent", "amazon", "yahoo", "articlebase", "bbc", "bizbuysell", "multiply", "blogadda", "blogsome", "blogtalkradio", "cbsnews", "dailymail", "dailymotion", "dallasnews", "discovery", "ebay", "ehow", "ezinearticles", "facebook", "flickr", "guardian", "yahoo", "huffingtonpost", "latimes", "linkedin", "memebase", "msdn", "myspace", "nytimes", "posterous", "seattleapi", "canalblog", "spaces", "squidoo", "/style", "travelpod", "tripod", "tumblr", "typepad", "webl", "youtube", "skyrock", "blog138", "free-press-release", "ecrater", "livejournal", "onsugar", "over-blog", "blog131", "webcache", "google", "googleadservices.com", "books.google.co.uk", "books.google", "2021", "2020", "2019", "2018", "2017", "2015", "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007", "2006", "2005", "2004", "2003", "2002", "2001", "2000", "1999", "2016", "2022", "1998", "1997", "1996", "1995", "1994", "1993", "1992", "1991", "1990"];
+
+        for (var i = 0; i < listvalues.length; i++) {
+            var listURL = listvalues[i].split(".");
+            var url = listvalues[i].trim();
+
+            // Check if the URL contains unwanted keywords or matches unwanted patterns
+            if (!containsUnwantedKeywords(url, unwantedURLs)) {
+                newlist.push(url);
+            } else {
+                count++;
+            }
+        }
+
+        document.myform.outputbox.value = newlist.join("\n");
+        alert('Removed ' + count + ' unwanted URLs from list. ' + (listvalues.length - count) + ' unique URLs remain!');
+    }
+
+    function containsUnwantedKeywords(url, unwantedKeywords) {
+        // Check if the URL contains any of the unwanted keywords
+        for (var i = 0; i < unwantedKeywords.length; i++) {
+            if (url.includes(unwantedKeywords[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+      function RemoveDupes() {
+          var count = 0;
+          var mainlist = document.myform.outputbox.value;
+          var listvalues = mainlist.split("\n");
+          var newlist = [];
+          var hash = {};
+
+          for (var i = 0; i < listvalues.length; i++) {
+              if (!hash[listvalues[i].toLowerCase()]) {
+                  newlist.push(listvalues[i]);
+                  hash[listvalues[i].toLowerCase()] = true;
+              } else {
+                  count++;
+              }
+          }
+
+          document.myform.outputbox.value = newlist.join("\r\n");
+          alert('Removed ' + count + ' duplicate URLs from list. ' + (listvalues.length - count) + ' unique URLs remain!');
+      }
+
+      function handleStepFour() {
+
+        const outputList = document.getElementById("output-list");
+        outputList.innerHTML = "";
+    
+        const textArea = document.getElementById("outputbox");
+        const textAreaVal = textArea.value;
+        const lines = textAreaVal.split("\n");
+        const uniqueLines = [...new Set(lines.map(line => line.trim().toLowerCase()))];
+    
+        uniqueLines.forEach((textLine, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = '<a href="' + textLine + '" target="_blank"><span style="color: black;">' + (index + 1) + '.</span> ' + textLine + '</a>';
+            outputList.appendChild(li);
+    
+            const initialScrollPosition = window.scrollY;
+    
+            // Calculate the target position
+            const targetPosition = initialScrollPosition + 500;
+    
+            // Use the scrollTo method for smooth scrolling
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+    
+        });
+    }
+    
+
+  
+    </script>
+    <title>RESOURCE PAGES - BACKLINK FINDER v.3.5 | By Ron Carandang</title>
+</head>
+<body data-loom-blur-type="NONE">
+<form name="myform" method="post">
+    <h1>RESOURCE PAGES - BACKLINK FINDER v.3.5</h1>
+    <p>Quickly find resource pages and useful links pages!</p>
+    <br>
+    
+    <p><small><i> &nbsp; &nbsp;Backlinks / URLs / Syntax to Find</i></small></p>
+
+        <textarea name="TechKeywords" id="TechKeywords" rows="10" placeholder="Backlinks / URLs / Syntax to Find (one per line)" style="width: 25%; height: 200px;">
+/links
+/useful%20link
+/resource
+/useful-link
+/other%20links
+/other-links
+/other-useful-links
+/other%20useful%20links
+/otherusefullinks
+/useful-business-link
+/useful-educational-link
+/web-resource
+/web%20resource
+/web-link
+/web%20link
+/Related%20Links
+/Related-Links
+useful%20External%20Links
+/useful-External-Links
+/useful_links
+links
+resources
+business-links
+educational-links
+external-links
+web-links
+related-links
+favourite-links
+helpfullinks
+helpful-links
+useful-sites
+useful-websites
+helpful-sites
+helpful-websites
+fave-links
+fave-websites
+fave-sites
+favourite-sites
+favourite-websites
+/resources/
+/links/
+/useful-links/
+/helpful-links/
+/reference/
+/helpful-resources/
+/useful-resources/
+/related-links/
+/support/
+/additional-resources/
+/related-resources/
+/reference-materials/
+/additional-links/
+/info-resources/
+/useful-info/
+/helpful-info/
+/links-page/
+/resource-page/
+/support-resources/
+/related-info/
+/reference-page/
+/info-page/
+/useful-page/
+/helpful-page/
+/resources-page/
+/additional-info/
+/support-page/
+/links-section/
+/resource-section/
+/helpful-section/
+/useful-section/
+/reference-section/
+/info-section/
+/resources-section/
+/additional-section/
+/support-section/
+/links-category/
+/resource-category/
+/helpful-category/
+/useful-category/
+/reference-category/
+/info-category/
+/resources-category/
+/additional-category/
+/support-category/
+/info-list/
+/useful-list/
+/helpful-list/
+/resources-list/
+/links-list/
+/guides/
+/tutorials/
+/how-to/
+/reference-guides/
+/toolkit/
+/tips/
+/tutorial-resources/
+/how-to-resources/
+/guide-resources/
+/reference-library/
+/toolbox/
+/how-to-links/
+/tutorial-links/
+/guide-links/
+/resources-directory/
+/info-directory/
+/tutorial-directory/
+/how-to-directory/
+/reference-directory/
+/toolkit-directory/
+/tips-directory/
+/links-library/
+/resources-toolkit/
+/info-toolkit/
+/tutorial-toolkit/
+/how-to-toolkit/
+/reference-toolkit/
+/tips-toolkit/
+/guides-resources/
+/tutorials-resources/
+/toolbox-resources/
+/tips-resources/
+/links-toolkit/
+/resources-tips/
+/info-tips/
+/tutorial-tips/
+/how-to-tips/
+/reference-tips/
+/toolkit-tips/
+/guides-links/
+/tutorials-links/
+/reference-links/
+/toolbox-links/
+/tips-links/
+/links-tips/
+/resources-library/
+/info-library/</textarea>
+    <textarea name="mainlist1" id="mainlist1" placeholder="PASTE YOUR URL HERE" rows="10"
+              style="height: 200px; width: 72%;"></textarea>
+              <br>
+              <br>
+    <textarea name="outputbox" id="outputbox" placeholder="FILTERED URL POPULATE'S HERE" rows="10" style="width:99%;"></textarea>
+    <div style="text-align: center;">
+        <input type="button" name="trim" id="trim" value="STEP 1: SAVE &amp; REFRESH" onclick="ClearData();">
+        <input type="button" name="trim2" id="trim2" value="STEP 2: FIND BACKLINKS PAGES" onclick="FilterTech();">
+        <input type="button" name="trim4" id="trim4" value="STEP 3: FILTER UNWANTED RESULTS" onclick="FilterURLs();">
+        <input type="button" name="copyButton" id="copyButton" value="STEP 4: COPY URL" onclick="copyToClipboard();">
+        <input type="button" name="trim6" id="trim6" value="GENERATE LINKS" onclick="handleStepFour();">
+       
+
+        <script>
+          function copyToClipboard() {
+              var outputBox = document.getElementById("outputbox");
+              outputBox.select();
+              document.execCommand('copy');
+         
+          }
+      </script>
+    </div>
+</form>
+<hr>
+<div class="output-area">
+    <ol id="output-list">
+        <li>Prospect list: a list of links will appear below from Step 5</li>
+        <li style="color:red;">IMPORTANT: in Step 5, please LIMIT results/batches to no more than 500 URLs.
+            Buzzmarker prospect list CANNOT handle more than 500 URLs and you will get an error message if your list
+            is more than 500 URLs
+        </li>
+    </ol>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
