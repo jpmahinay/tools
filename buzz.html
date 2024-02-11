@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Page Title</title>
+</head>
+<body>
+
+    <select id="projectID" style="width:400px; height:30px; font-weight:bold; font-size:14px;">
+        <optgroup label="======== PHASE 1 ============"> 
+            <option value="334124">Comparethemarket.com (CTM) - old campaigns</option>
+            <option value="516297">Quantexa.com (QTX) - Mention-to-Links (M2L)</option>
+            <option value="430688">CTM - Credit Cards + Savings accounts (CCSA) - Phase 1</option>
+            <option value="430690">CTM - Energy (Phase 1)</option>
+            <option value="430694">CTM - Mortgages (Phase 1)</option>
+        </optgroup>
+    </select>
+
+    <br><br>
+
+    <div style="text-align:center">
+        <button id="submitButton" onclick="fetchBuzzstreamData()" style="width:50px; height:30px; background:blue; color:white;">OK</button>
+    </div>
+
+    <div id="loadingIndicator" style="display: none; text-align: center;">
+        Loading...
+    </div>
+
+    <div id="errorContainer" style="display: none; color: red; text-align: center;">
+        Error fetching data. Please try again.
+    </div>
+
+    <textarea id="domainFetch" rows="10" cols="50" readonly></textarea>
+
+    <script>
+        async function fetchBuzzstreamData() {
+            var projectId = document.getElementById('projectID').value;
+
+            // Your Buzzstream OAuth credentials
+            var consumerKey = 'dcf0884b-bb81-490a-8709-efab05170b1d';
+            var consumerSecret = 'w7FFlxlbtctZUFtEyW7ePTVkXAUlDb3qLKAUVLUJgenq7dVt15Tcb9R-YqLn0Em8';
+
+            // OAuth Signature 
+            var signature = encodeURIComponent(consumerSecret) + "&";
+
+            // Get headers
+            var headers = {
+                "Authorization": getAuthHeader(consumerKey, signature) 
+            };
+
+            // Options
+            var options = {
+                headers: headers,
+                muteHttpExceptions: true
+            };
+
+            // Get base URL
+            var baseUrl = "https://api.buzzstream.com/v1";
+
+            // Display loading indicator
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('errorContainer').style.display = 'none';
+
+            try {
+                var response = await fetch(`${baseUrl}/websites?project=${projectId}&max_results=1000&expand=true`, options);
+                var data = await response.json();
+
+                if (data && data.list) {
+                    // Display data in textarea
+                    var textArea = document.getElementById('domainFetch');
+                    if (textArea) {
+                        var formattedData = data.list.map(website => website.name).join('\n');
+                        textArea.value = formattedData;
+                    } else {
+                        console.error('TextArea with id "domainFetch" not found.');
+                    }
+                } else {
+                    console.error('Failed to fetch Buzzstream data.');
+                    // Display error message
+                    document.getElementById('errorContainer').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error fetching Buzzstream data:', error);
+                // Display error message
+                document.getElementById('errorContainer').style.display = 'block';
+            } finally {
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        }
+
+        // Add your existing functions here
+        function getAuthHeader(consumerKey, signature) {
+            var timestamp = Math.round(new Date().getTime() / 1000);
+            return 'OAuth oauth_consumer_key="' + consumerKey + '",oauth_signature_method="PLAINTEXT",oauth_timestamp="' + timestamp + '",oauth_nonce="' + '",oauth_version="1.0",oauth_signature="' + signature + '"';
+        }
+    </script>
+</body>
+</html>
