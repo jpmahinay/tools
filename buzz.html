@@ -22,23 +22,15 @@
         <button id="submitButton" onclick="fetchBuzzstreamData()" style="width:50px; height:30px; background:blue; color:white;">OK</button>
     </div>
 
-    <div id="loadingIndicator" style="display: none; text-align: center;">
-        Loading...
-    </div>
-
-    <div id="errorContainer" style="display: none; color: red; text-align: center;">
-        Error fetching data. Please try again.
-    </div>
-
     <textarea id="domainFetch" rows="10" cols="50" readonly></textarea>
 
     <script>
         async function fetchBuzzstreamData() {
             var projectId = document.getElementById('projectID').value;
 
-            // Your Buzzstream OAuth credentials
-            var consumerKey = 'YOUR_CONSUMER_KEY';
-            var consumerSecret = 'YOUR_CONSUMER_SECRET';
+            // Your Buzzstream OAuth credentials (Note: This is not secure for production)
+               var consumerKey = 'dcf0884b-bb81-490a-8709-efab05170b1d';
+            var consumerSecret = 'w7FFlxlbtctZUFtEyW7ePTVkXAUlDb3qLKAUVLUJgenq7dVt15Tcb9R-YqLn0Em8';
 
             // OAuth Signature 
             var signature = encodeURIComponent(consumerSecret) + "&";
@@ -52,22 +44,11 @@
             var options = {
                 method: 'GET',
                 headers: headers,
-                cache: 'default',
             };
 
-            // CORS Anywhere proxy URL
-            var corsAnywhereUrl = 'https://cors-anywhere.herokuapp.com/';
-
-            // Buzzstream API URL
-            var buzzstreamApiUrl = `https://api.buzzstream.com/v1/websites?project=${projectId}&max_results=1000&expand=true`;
-
-            // Display loading indicator
-            document.getElementById('loadingIndicator').style.display = 'block';
-            document.getElementById('errorContainer').style.display = 'none';
-
             try {
-                // Fetch data using the CORS Anywhere proxy
-                var response = await fetch(corsAnywhereUrl + buzzstreamApiUrl, options);
+                // Fetch data from Buzzstream API
+                var response = await fetch(`https://api.buzzstream.com/v1/websites?project=${projectId}&max_results=1000&expand=true`, options);
                 var data = await response.json();
 
                 if (data && data.list) {
@@ -81,16 +62,9 @@
                     }
                 } else {
                     console.error('Failed to fetch Buzzstream data.');
-                    // Display error message
-                    document.getElementById('errorContainer').style.display = 'block';
                 }
             } catch (error) {
                 console.error('Error fetching Buzzstream data:', error);
-                // Display error message
-                document.getElementById('errorContainer').style.display = 'block';
-            } finally {
-                // Hide loading indicator
-                document.getElementById('loadingIndicator').style.display = 'none';
             }
         }
 
