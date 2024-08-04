@@ -1,0 +1,334 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Merger by: Jpm</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            text-align: center;
+        }
+
+        form {
+            background-color: #eee;
+            padding: 20px;
+            box-shadow: 0px 7px 5px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 1200px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        .version {
+            display: flex;
+            position: relative;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+            margin-bottom: -20px;
+        }
+
+        .file-upload {
+            text-align: center;
+        }
+
+        input[type="file"] {
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            padding: 10px;
+            background-color: #52b3c1;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: smaller;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #2d676d;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #52b3c1;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
+
+        button:hover {
+            background-color: #2d676d;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            background-color: #218838;
+        }
+
+        .file-names {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .file-names p {
+            margin: 0;
+            padding: 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            font-size: small;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-names p .remove-file {
+            cursor: pointer;
+            color: red;
+            margin-left: 10px;
+        }
+
+        .add-file {
+            margin: 0;
+            padding: 5px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            font-size: large;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .option {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <form>
+        <span class="version"> v1.2</span>
+        <h1>Merge CSV Files</h1>
+        <div class="file-upload">
+            <label for="csvFiles" class="custom-file-upload">Choose CSV Files</label>
+            <input type="file" id="csvFiles" multiple accept=".csv" onchange="handleFileSelect()">
+        </div>
+        <div class="option">
+            <label>
+                <input type="checkbox" id="mergeHeaders" checked>
+                Merge all headers into one
+            </label>
+        </div>
+        <div id="fileNames" class="file-names"></div>
+        <br>
+        <button id="mergeButton" type="button" onclick="mergeCSVFiles()">Merge CSV Files</button>
+        <br>
+        <br>
+        <p id="mergingStatus" style="display: none;">Enter File Name..</p>
+        <a id="downloadLink" href="#" download="merged.csv" style="display: none;">Download Merged CSV</a>
+        <br>
+        <br>
+        <button id="resetButton" type="button" onclick="resetInterface()" style="display: none;">Reset</button>
+    </form>
+
+    <script>
+        let selectedFiles = [];
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById('csvFiles');
+            selectedFiles = selectedFiles.concat(Array.from(fileInput.files));
+            updateFileList();
+        }
+
+        function updateFileList() {
+            const fileNamesDiv = document.getElementById('fileNames');
+            fileNamesDiv.innerHTML = '';
+
+            selectedFiles.forEach((file, index) => {
+                const fileNameDiv = document.createElement('p');
+                fileNameDiv.textContent = file.name;
+                const removeButton = document.createElement('span');
+                removeButton.textContent = 'x';
+                removeButton.classList.add('remove-file');
+                removeButton.onclick = () => {
+                    removeFile(index);
+                };
+                fileNameDiv.appendChild(removeButton);
+                fileNamesDiv.appendChild(fileNameDiv);
+            });
+
+            const addFileDiv = document.createElement('div');
+            addFileDiv.classList.add('add-file');
+            addFileDiv.textContent = '+';
+            addFileDiv.onclick = () => {
+                document.getElementById('csvFiles').click();
+            };
+            fileNamesDiv.appendChild(addFileDiv);
+
+            const mergeButton = document.getElementById('mergeButton');
+            mergeButton.style.display = selectedFiles.length > 0 ? 'inline-block' : 'none';
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+        }
+
+        function mergeCSVFiles() {
+            if (selectedFiles.length === 0) {
+                alert('Please select at least one CSV file.');
+                return;
+            }
+
+            const mergeHeaders = document.getElementById('mergeHeaders').checked;
+
+            const mergingStatus = document.getElementById('mergingStatus');
+            mergingStatus.style.display = 'block';
+
+            const promises = selectedFiles.map(file => readFileAsText(file));
+
+            Promise.all(promises).then(contents => {
+                const parsedContents = contents.map(content => parseCSV(content));
+                const mergedCSV = mergeParsedContents(parsedContents, mergeHeaders);
+                const csvString = convertToCSV(mergedCSV);
+                createDownloadLink(csvString);
+                mergingStatus.style.display = 'none';
+            }).catch(error => {
+                console.error('Error reading files:', error);
+                alert('Error reading files');
+                mergingStatus.style.display = 'none';
+            });
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = () => reject(reader.error);
+                reader.readAsText(file);
+            });
+        }
+
+        function parseCSV(content) {
+            const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
+            const headers = lines[0].split('\t').map(header => header.trim());
+            const rows = lines.slice(1).map(line => {
+                const values = line.split('\t');
+                const row = {};
+                headers.forEach((header, index) => {
+                    row[header] = values[index] || '';
+                });
+                return row;
+            });
+            return { headers, rows };
+        }
+
+        function mergeParsedContents(parsedContents, mergeHeaders) {
+            if (mergeHeaders) {
+                const allHeaders = Array.from(new Set(parsedContents.flatMap(parsed => parsed.headers)));
+                const mergedData = parsedContents.flatMap(parsed => parsed.rows.map(row => {
+                    const completeRow = {};
+                    allHeaders.forEach(header => {
+                        completeRow[header] = row[header] || '';
+                    });
+                    return completeRow;
+                }));
+                return { headers: allHeaders, rows: mergedData };
+            } else {
+                let mergedData = [];
+                parsedContents.forEach(parsed => {
+                    const { headers, rows } = parsed;
+                    const headerRow = {};
+                    headers.forEach(header => {
+                        headerRow[header] = header;
+                    });
+                    mergedData.push(headerRow, ...rows);
+                });
+                const allHeaders = Array.from(new Set(mergedData.flatMap(row => Object.keys(row))));
+                return { headers: allHeaders, rows: mergedData };
+            }
+        }
+
+        function convertToCSV({ headers, rows }) {
+            const headerLine = headers.join(',');
+            const lines = rows.map(row => headers.map(header => row[header]).join(','));
+            return [headerLine, ...lines].join('\r\n');
+        }
+
+        function createDownloadLink(csvString) {
+            const defaultFileName = "merged.csv";
+            const fileName = prompt("Please enter the file name:", defaultFileName);
+        
+            if (fileName === null || fileName === "") {
+                return;
+            }
+        
+            const blob = new Blob([csvString], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            const resetButton = document.getElementById('resetButton');
+        
+            link.href = url;
+            link.setAttribute('download', fileName.endsWith('.csv') ? fileName : fileName + '.csv');
+            
+            // Automatically reset the interface when the download link is clicked
+            link.onclick = () => {
+                resetInterface();
+            };
+        
+            // Hide the download link after it's clicked
+            link.style.display = 'inline';
+        }
+        
+
+        function resetInterface() {
+            const fileInput = document.getElementById('csvFiles');
+            const fileNamesDiv = document.getElementById('fileNames');
+            const mergeButton = document.getElementById('mergeButton');
+            const mergingStatus = document.getElementById('mergingStatus');
+            const downloadLink = document.getElementById('downloadLink');
+            const resetButton = document.getElementById('resetButton');
+
+            fileInput.value = '';
+            fileNamesDiv.innerHTML = '';
+            mergeButton.style.display = 'none';
+            mergingStatus.style.display = 'none';
+            downloadLink.style.display = 'none';
+            resetButton.style.display = 'none';
+            selectedFiles = [];
+        }
+    </script>
+</body>
+
+</html>
