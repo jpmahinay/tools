@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Calendar</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+    }
+
+    h1 {
+      background-color: #34A853;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      margin: 20px 0;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #4285F4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #357ae8;
+    }
+
+    .calendar-container {
+      display: inline-grid;
+      grid-template-columns: repeat(4, 1fr);
+      row-gap: 10px;
+      column-gap: 10px;
+      padding: 10px;
+      justify-items: center;
+    }
+
+    .month {
+        display:-ms-inline-grid;
+      border: 1px solid #94bdff;
+      background-color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      width: 360px;
+      text-align: center;
+    }
+
+    .month h2 {
+      background-color: #4285F4;
+      color: white;
+      margin: 0;
+      padding: 10px;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .days-of-week {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background-color: #E8F0FE;
+      padding: 10px 0;
+      font-weight: bold;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+    }
+
+    .day {
+      padding: 5px;
+      text-align: center;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      min-height: 10px;
+    }
+
+    .sunday {
+      background-color: #f7e3e3;
+    }
+
+
+
+    #calendar-year {
+        color:#357ae8;
+        font-size: 34px;
+        font-weight: bold;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+  </style>
+</head>
+<body>
+
+<h1>Calendar Generator</h1>
+
+  <!-- Input to get year -->
+  <label for="year">Enter Year:</label>
+  <input type="number" id="year" placeholder="Enter Year" min="1" max="9999" />
+  <button onclick="generateCalendar()">Generate Calendar by:JPM</button>
+
+  <!-- Display YEAR [input year] -->
+  <div id="calendar-year"  ${year}></div>
+
+  <!-- Calendar will be populated here -->
+  <div id="calendar" class="calendar-container"></div>
+
+<script>
+  // Month and days of week names
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  // Function to generate the calendar
+  function generateCalendar() {
+    // Get the year input by the user
+    const year = document.getElementById('year').value;
+    
+    // Check if year is valid
+    if (!year || year < 1 || year > 9999) {
+      alert('Please enter a valid year between 1 and 9999.');
+      return;
+    }
+
+  // Display "YEAR [input year]" before the calendar
+  const calendarYearDiv = document.getElementById('calendar-year');
+  calendarYearDiv.textContent = '' + year;
+  calendarYearDiv.style.fontWeight = 'bold';
+    
+    // Clear any existing calendar
+    const calendarContainer = document.getElementById('calendar');
+    calendarContainer.innerHTML = '';
+
+    // Loop through each month and generate calendar
+    for (let month = 0; month < 12; month++) {
+      const monthDiv = document.createElement('div');
+      monthDiv.classList.add('month');
+      
+       // Create the month header in UPPERCASE
+       const monthHeader = document.createElement('h2');
+       monthHeader.textContent = `${monthNames[month].toUpperCase()} `;
+       monthDiv.appendChild(monthHeader);
+
+
+      
+
+      // Create the days of the week header
+      const daysOfWeekRow = document.createElement('div');
+      daysOfWeekRow.classList.add('days-of-week');
+      daysOfWeek.forEach(day => {
+        const dayDiv = document.createElement('div');
+        dayDiv.textContent = day;
+        daysOfWeekRow.appendChild(dayDiv);
+      });
+      monthDiv.appendChild(daysOfWeekRow);
+
+      // Create the grid for days
+      const daysGrid = document.createElement('div');
+      daysGrid.classList.add('days');
+
+      // Get first day of the month and number of days in the month
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      // Add empty cells before the first day of the month
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.classList.add('day');
+        daysGrid.appendChild(emptyCell);
+      }
+
+      // Fill in the days of the month
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDiv = document.createElement('div');
+        dayDiv.classList.add('day');
+        
+        // Highlight Sundays
+        if ((firstDay + day - 1) % 7 === 0) {
+          dayDiv.classList.add('sunday');
+        }
+
+        dayDiv.textContent = day;
+        daysGrid.appendChild(dayDiv);
+      }
+
+      // Append the days grid to the month div
+      monthDiv.appendChild(daysGrid);
+
+      // Append the month div to the calendar container
+      calendarContainer.appendChild(monthDiv);
+    }
+  }
+</script>
+
+</body>
+</html>
