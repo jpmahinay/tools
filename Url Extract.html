@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL and Title Extractor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .content-area {
+            min-height: 150px;
+            max-height: 300px;
+        }
+        
+        .content-area[contenteditable=true]:empty:before {
+            content: attr(placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+        
+        .fade-out {
+            animation: fadeOut 2s forwards;
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6 text-center">URL and Title Extractor</h1>
+            
+            <div class="mb-6">
+                <div 
+                    id="inputArea" 
+                    class="content-area w-full border border-gray-300 rounded-lg p-4 mb-4 overflow-y-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    contenteditable="true"
+                    placeholder="Paste your list of titles with links here..."></div>
+                
+                <div class="flex gap-4 mb-6">
+                    <button 
+                        onclick="processData()" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        Process Content
+                    </button>
+                    <button 
+                        id="clearButton" 
+                        onclick="clearContent()" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <div id="notification" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg"></div>
+
+            <div class="overflow-x-auto">
+                <table id="outputTable" class="w-full border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100">
+                            <th class="border px-4 py-2 text-left text-gray-600">#</th>
+                            <th class="border px-4 py-2 text-left text-gray-600">Title</th>
+                            <th class="border px-4 py-2 text-left text-gray-600">URL</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <button 
+                id="copyButton" 
+                onclick="copyToClipboard()" 
+                class="hidden w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200">
+                Copy to Clipboard
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            notification.classList.add('fade-out');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+                notification.classList.remove('fade-out');
+            }, 2000);
+        }
+
+        function clearContent() {
+            document.getElementById('inputArea').innerHTML = '';
+            document.getElementById('outputTable').querySelector('tbody').innerHTML = '';
+            document.getElementById('copyButton').classList.add('hidden');
+        }
+
+        function processData() {
+            const inputArea = document.getElementById('inputArea');
+            const outputTable = document.getElementById('outputTable').querySelector('tbody');
+            const copyButton = document.getElementById('copyButton');
+
+            // Clear previous results
+            outputTable.innerHTML = '';
+
+            // Parse the contenteditable div
+            const content = inputArea.innerHTML;
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            
+            const links = tempDiv.getElementsByTagName('a');
+            let rowCount = 0;
+
+            Array.from(links).forEach((link, index) => {
+                const title = link.textContent.trim();
+                const url = link.href;
+
+                if (title && url) {
+                    rowCount++;
+                    const row = document.createElement('tr');
+                    row.className = rowCount % 2 === 0 ? 'bg-gray-50' : 'bg-white';
+
+                    const indexCell = document.createElement('td');
+                    indexCell.className = 'border px-4 py-2 text-gray-600';
+                    indexCell.textContent = rowCount;
+
+                    const titleCell = document.createElement('td');
+                    titleCell.className = 'border px-4 py-2';
+                    
+                    const urlCell = document.createElement('td');
+                    urlCell.className = 'border px-4 py-2 text-blue-600';
+                    
+                    const linkedTitle = document.createElement('a');
+                    linkedTitle.href = url;
+                    linkedTitle.textContent = title;
+                    linkedTitle.target = '_blank';
+                    linkedTitle.className = 'text-blue-600 hover:underline';
+                    
+                    titleCell.appendChild(linkedTitle);
+                    urlCell.textContent = url;
+
+                    row.appendChild(indexCell);
+                    row.appendChild(titleCell);
+                    row.appendChild(urlCell);
+                    outputTable.appendChild(row);
+                }
+            });
+
+            // Show/hide copy button based on results
+            copyButton.classList.toggle('hidden', rowCount === 0);
+            
+            if (rowCount === 0) {
+                showNotification('No valid links found in the content.');
+            } else {
+                showNotification(`Processed ${rowCount} links successfully.`);
+            }
+        }
+
+        function copyToClipboard() {
+            const outputTable = document.getElementById('outputTable').querySelector('tbody');
+            let clipboardContent = '';
+
+            Array.from(outputTable.rows).forEach(row => {
+                const title = row.cells[1].textContent;
+                const url = row.cells[2].textContent;
+                clipboardContent += `${title}\t${url}\n`;
+            });
+
+            navigator.clipboard.writeText(clipboardContent)
+                .then(() => {
+                    showNotification('Content copied to clipboard!');
+                })
+                .catch(err => {
+                    showNotification('Failed to copy: ' + err);
+                    console.error('Copy failed:', err);
+                });
+        }
+
+        // Initialize empty state
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputArea = document.getElementById('inputArea');
+            inputArea.focus();
+        });
+    </script>
+</body>
+</html>
